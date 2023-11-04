@@ -167,7 +167,7 @@ NOTES:
  *   Rating: 1
  */
 int isTmax(int x) {
-  return !(~((1<<31) ^ x));
+  return !!(~x) & !(~(x ^ (x+1)));
 }
 
 //2
@@ -206,7 +206,8 @@ int isEqual(int x, int y) {
  *   Rating: 2
  */
 int fitsBits(int x, int n) {
-  return !(((x << (32 - n)) >> (32-n)) ^ x);
+  int nn = 32 + ~n + 1;
+  return !(((x << nn) >> nn) ^ x);
 }
 
 //5
