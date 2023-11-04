@@ -286,9 +286,9 @@ int logicalNeg(int x) {
  *   Rating: 4
  */
 int twosComp2SignMag(int x) {
-  int signBit = x &(1 << 31);
-  x = ~x + 1;
-  return x | signBit;
+  int signMask = x >> 31;
+  x =  (~signMask & x) | (signMask & (~x + 1) | ((signMask & 1) << 31));
+  return x;
 }
 //10
 /*
