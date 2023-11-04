@@ -143,5 +143,7 @@ NOTES:
  *   Rating: 3
  */
 int ezThreeFourths(int x) {
-   return ((x +x + x + (x >> 31 & 3)) >> 2);
+    int threex = x+x+x;
+    int bias = (threex >> 31) & 0b11;
+    return (threex + bias) >>2;
 }
