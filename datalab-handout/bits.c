@@ -167,8 +167,9 @@ NOTES:
  *   Rating: 1
  */
 int isTmax(int x) {
-  return 2;
+  return !(~((1<<31) ^ x));
 }
+
 //2
 /* 
  * evenBits - return word with all even-numbered bits set to 1
@@ -177,7 +178,11 @@ int isTmax(int x) {
  *   Rating: 1
  */
 int evenBits(void) {
-  return 2;
+  int x = 5;
+  int x2 = (x << 4) | x;
+  int x3 = (x2 << 8) | x2;
+  int x4 = (x3 << 16) | x3;
+  return x4;
 }
 //3
 /* 
@@ -188,7 +193,7 @@ int evenBits(void) {
  *   Rating: 2
  */
 int isEqual(int x, int y) {
-  return 2;
+  return !(x ^ y);
 }
 //4
 /* 
@@ -201,8 +206,9 @@ int isEqual(int x, int y) {
  *   Rating: 2
  */
 int fitsBits(int x, int n) {
-  return 2;
+  return !(((x << (32 - n)) >> (32-n)) ^ x);
 }
+
 //5
 /* 
  * conditional - same as x ? y : z 
@@ -212,9 +218,14 @@ int fitsBits(int x, int n) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
-  return 2;
+  
+  // create a mask 111111 if x!=0, 000000 if x==0
+  int isFalse = !x; // 0 if x!= 0 
+  int mask = ~0 + isFalse; // 11111 + 0 if x!= 0
+  
+  return (mask & y) | (~mask & z);
 }
-//6
+//6 
 /* 
  * isGreater - if x > y  then return 1, else return 0 
  *   Example: isGreater(4,5) = 0, isGreater(5,4) = 1
@@ -223,7 +234,10 @@ int conditional(int x, int y, int z) {
  *   Rating: 3
  */
 int isGreater(int x, int y) {
-  return 2;
+  int xSuby = x + ~y + 1;
+  
+  int isSameSign = ((((~xSuby) & (~x | y)) | ((~x)&y)) >> 31) & 1;
+  return (!!xSuby) & isSameSign;
 }
 //7
 /*
