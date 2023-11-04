@@ -80,10 +80,6 @@ int isGreater(int x, int y) {
   int isSameSign = ((((~xSuby) & (~x | y)) | ((~x)&y)) >> 31) & 1;
   return (!!xSuby) & isSameSign;
 }
-
-int main(){
-    printf("%d\n",isGreater(-2147483647,-2147483646));
-}
 //7
 /*
  * multFiveEighths - multiplies by 5/8 rounding toward 0.
@@ -97,11 +93,14 @@ int main(){
  *   Rating: 3
  */
 int multFiveEighths(int x) {
-  return 2;
+  int fiveX = x << 2 + x;
+  int mask = fiveX >> 31;
+  int isMod = fiveX & 7;
+  return (fiveX + (mask & isMod)) >> 3;
 }
 
 int main(){
-    printf("%d\n",multFiveEighths(-2147483647,-2147483646));
+    printf("%d\n",multFiveEighths(3));
 }
 //8
 /* 
