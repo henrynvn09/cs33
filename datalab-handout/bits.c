@@ -251,8 +251,12 @@ int isGreater(int x, int y) {
  *   Max ops: 12
  *   Rating: 3
  */
+
 int multFiveEighths(int x) {
-  return 2;
+  int fiveX = (x << 2) + x;
+  int mask = (fiveX >> 31) & 7;
+  int result = (fiveX + mask) >> 3;
+  return (result);
 }
 //8
 /* 
@@ -264,7 +268,12 @@ int multFiveEighths(int x) {
  *   Rating: 4 
  */
 int logicalNeg(int x) {
-  return 2;
+  x = x | (x >> 16);
+  x = x | (x >> 8);
+  x = x | (x >> 4);
+  x = x | (x >> 2);
+  x = x | (x >> 1);
+  return ~x & 1;
 }
 //9
 /* 
@@ -277,7 +286,9 @@ int logicalNeg(int x) {
  *   Rating: 4
  */
 int twosComp2SignMag(int x) {
-  return 2;
+  int signBit = x &(1 << 31);
+  x = ~x + 1;
+  return x | signBit;
 }
 //10
 /*

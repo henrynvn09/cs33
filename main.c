@@ -101,16 +101,6 @@ int multFiveEighths(int x) {
   return (result);
 }
 
-int main(){
-  for (int i = -20; i < 0; i++)
-  {
-    if (i*5/8 != multFiveEighths(i)){
-      printf("%d - %d - %d\n",i, i*5/8, multFiveEighths(i));
-    }
-  }
-  
-    //printf("%d\n",multFiveEighths(-1));
-}
 //8
 /* 
  * logicalNeg - implement the ! operator, using all of 
@@ -133,8 +123,15 @@ int logicalNeg(int x) {
  *   Max ops: 15
  *   Rating: 4
  */
+
 int twosComp2SignMag(int x) {
-  return 2;
+  int signBit = x &(1 << 31);
+  x = ~x + 1;
+  return x | signBit;
+}
+
+int main(){
+    printf("%d\n",twosComp2SignMag(-5));
 }
 //10
 /*
