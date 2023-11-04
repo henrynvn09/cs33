@@ -1,0 +1,51 @@
+(gdb) i r 
+rax            0x604310            6308624
+rbx            0x604340            6308672
+rcx            0x3                 3
+rdx            0x604300            6308608
+rsi            0x6                 6
+rdi            0x7fffffffdcd0      140737488346320
+rbp            0x7fffffffe334      0x7fffffffe334
+rsp            0x7fffffffe2f0      0x7fffffffe2f0
+r8             0x7ffff7dd5060      140737351864416
+r9             0x0                 0
+r10            0x0                 0
+r11            0x0                 0
+r12            0x7fffffffe334      140737488347956
+r13            0x6                 6
+r14            0x0                 0
+r15            0x0                 0
+rip            0x401227            0x401227 <phase_6+205>
+eflags         0x246               [ PF ZF IF ]
+cs             0x33                51
+ss             0x2b                43
+ds             0x0                 0
+es             0x0                 0
+fs             0x0                 0
+gs             0x0                 0
+
+
+0x6042f0 <node1>:       0x00000354      0x00000001      0x00604300    0x00000000
+0x604300 <node2>:       0x000002fe      0x00000002      0x00604310    0x00000000
+0x604310 <node3>:       0x00000227      0x00000003      0x00000000    0x00000000
+0x604320 <node4>:       0x0000015a      0x00000004      0x006042f0    0x00000000
+0x604330 <node5>:       0x000000b2      0x00000005      0x00604320    0x00000000
+0x604340 <node6>:       0x00000251      0x00000006      0x00604330    0x00000000
+
+
+0x7fffffffe2f0: 0x00604340      0x00000000      0x00604330      0x00000000
+0x7fffffffe300: 0x00604320      0x00000000      0x006042f0      0x00000000
+0x7fffffffe310: 0x00604300      0x00000000      0x00604310      0x00000000
+0x7fffffffe320: 0x00000006      0x00000005      0x00000004      0x00000001
+0x7fffffffe330: 0x00000002      0x00000003      0x004015bd      0x00000000
+0x7fffffffe340: 0x00000002      0x00000000      0x00000002      0x00000000
+0x7fffffffe350: 0xffffe468      0x00007fff      0x00400d40      0x00000000
+0x7fffffffe360: 0xffffe460      0x00007fff      0x00400ef7      0x00000000
+0x7fffffffe370: 0xffffe460      0x00007fff      0x00000000      0x00000000
+0x7fffffffe380: 0x00000000      0x00000000      0xf7a2f555      0x00007fff
+0x7fffffffe390: 0x00000000      0x00000000      0xffffe468      0x00007fff
+0x7fffffffe3a0: 0x00000000      0x00000002      0x00400e12      0x00000000
+0x7fffffffe3b0: 0x00000000      0x00000000      0x0e6488cf      0x7d9bf4b1
+0x7fffffffe3c0: 0x00400d40      0x00000000      0xffffe460      0x00007fff
+0x7fffffffe3d0: 0x00000000      0x00000000      0x00000000      0x00000000
+0x7fffffffe3e0: 0xc94488cf      0x82640b4e      0xe47e88cf      0x82641bf4
