@@ -1057,7 +1057,7 @@ dkms.conf
 *.inp
 *.out
 *.ans
-
+.vscode/
 
 ## lab0
 !datalab0-handout/*
