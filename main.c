@@ -125,14 +125,11 @@ int logicalNeg(int x) {
  */
 
 int twosComp2SignMag(int x) {
-  int signBit = x &(1 << 31);
-  x = ~x + 1;
-  return x | signBit;
+  int signMask = x >> 31;
+  x =  (~signMask & x) | (signMask & (~x + 1) | ((signMask & 1) << 31));
+  return x;
 }
 
-int main(){
-    printf("%d\n",twosComp2SignMag(-5));
-}
 //10
 /*
  * isPower2 - returns 1 if x is a power of 2, and 0 otherwise
@@ -143,5 +140,23 @@ int main(){
  *   Rating: 4
  */
 int isPower2(int x) {
-  return 2;
+  // IOW, the problem is if this equation has only 1 1
+  // it's false for 1 and INT_MIN
+  int LSB = x & (~x + 1); // isolate LSB
+  int ans = x ^ LSB; // if x == LSB, x = 0
+  ans = !ans; //if x == LSB, x = 1
+  ans = !(LSB & 1) & ans; // if LSB is at 1, ans is 0
+  ans = !(x & (1 << 31)) & ans; // if x is INT_MIN, ans is 0
+  //ans = !!(x) & ans; // if x is 0, ans is 0
+  return ans;
+}
+
+int main(){
+  for (int i = 0; i < 20; i++)
+  {
+    /* code */
+    if (isPower2(i))
+      printf("%d\n",i);
+  }
+  
 }
