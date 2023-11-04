@@ -299,6 +299,15 @@ int twosComp2SignMag(int x) {
  *   Max ops: 20
  *   Rating: 4
  */
+
 int isPower2(int x) {
-  return 2;
+  // IOW, the problem is if this equation has only 1 1
+  // it's false for 1 and INT_MIN
+  int LSB = x & (~x + 1); // isolate LSB
+  int ans = x ^ LSB; // if x == LSB, x = 0
+  ans = !ans; //if x == LSB, x = 1
+  ans = !(LSB & 1) & ans; // if LSB is at 1, ans is 0
+  ans = !(x & (1 << 31)) & ans; // if x is INT_MIN, ans is 0
+  ans = !!(x) & ans; // if x is 0, ans is 0
+  return ans;
 }
