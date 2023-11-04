@@ -1,4 +1,6 @@
 //1
+#include <stdio.h>
+#include <string.h>
 
 /*
  * isTmax - returns 1 if x is the maximum, two's complement number,
@@ -93,14 +95,21 @@ int isGreater(int x, int y) {
  *   Rating: 3
  */
 int multFiveEighths(int x) {
-  int fiveX = x << 2 + x;
-  int mask = fiveX >> 31;
-  int isMod = fiveX & 7;
-  return (fiveX + (mask & isMod)) >> 3;
+  int fiveX = (x << 2) + x;
+  int mask = (fiveX >> 31) & 7;
+  int result = (fiveX + mask) >> 3;
+  return (result);
 }
 
 int main(){
-    printf("%d\n",multFiveEighths(3));
+  for (int i = -20; i < 0; i++)
+  {
+    if (i*5/8 != multFiveEighths(i)){
+      printf("%d - %d - %d\n",i, i*5/8, multFiveEighths(i));
+    }
+  }
+  
+    //printf("%d\n",multFiveEighths(-1));
 }
 //8
 /* 
