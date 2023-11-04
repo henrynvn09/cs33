@@ -415,7 +415,7 @@ Disassembly of section .text:
   401246:	eb e6                	jmp    40122e <phase_6+0xd4>
 
   401248:	83 3d c1 35 20 00 21 	cmpl   $0x21,0x2035c1(%rip)        # 604810 <trap>
-  40124f:	74 0b                	je     40125c <phase_6+0x102> // prev must != 0x21
+  40124f:	74 0b                	je     40125c <phase_6+0x102> // prev must != 0x21, turns out it's secret phase entrance
   401251:	48 83 c4 58          	add    $0x58,%rsp
   401255:	5b                   	pop    %rbx
   401256:	5d                   	pop    %rbp
@@ -425,43 +425,51 @@ Disassembly of section .text:
   40125c:	e8 2d 04 00 00       	callq  40168e <explode_bomb>
   401261:	eb ee                	jmp    401251 <phase_6+0xf7>
 
-0000000000401263 <fun7>:
-  401263:	48 85 ff             	test   %rdi,%rdi
-  401266:	74 32                	je     40129a <fun7+0x37>
-  401268:	48 83 ec 08          	sub    $0x8,%rsp
-  40126c:	8b 17                	mov    (%rdi),%edx
-  40126e:	39 f2                	cmp    %esi,%edx
-  401270:	7f 0c                	jg     40127e <fun7+0x1b>
+0000000000401263 <fun7>: // rdi = 0x604110, rsi = inp
+  401263:	48 85 ff             	test   %rdi,%rdi // rdi == 0?
+  401266:	74 32                	je     40129a <fun7+0x37> // run it such that rdi != 0 
+
+  40126c:	8b 17                	mov    (%rdi),%edx // edi = 24, 
+  40126e:	39 f2                	cmp    %esi,%edx   // edx ?? inp
+  401270:	7f 0c                	jg     40127e <fun7+0x1b> // jump if val > inp
   401272:	b8 00 00 00 00       	mov    $0x0,%eax
   401277:	75 12                	jne    40128b <fun7+0x28>
-  401279:	48 83 c4 08          	add    $0x8,%rsp
-  40127d:	c3                   	retq   
-  40127e:	48 8b 7f 08          	mov    0x8(%rdi),%rdi
-  401282:	e8 dc ff ff ff       	callq  401263 <fun7>
+
+  40127d:	c3                   	retq   // the retq WE WANT
+
+  // (rdi) > esi? (value) > inp (arg2)? ;;;;  if inp > val -> left ptr
+  40127e:	48 8b 7f 08          	mov    0x8(%rdi),%rdi // rdi = rdi + 8 (left ptr)
+  401282:	e8 dc ff ff ff       	callq  401263 <fun7> // travel to left ptr
   401287:	01 c0                	add    %eax,%eax
   401289:	eb ee                	jmp    401279 <fun7+0x16>
-  40128b:	48 8b 7f 10          	mov    0x10(%rdi),%rdi
-  40128f:	e8 cf ff ff ff       	callq  401263 <fun7>
+
+  //rdi != 0  \\\ if inp != val
+  40128b:	48 8b 7f 10          	mov    0x10(%rdi),%rdi // rdi = rdi+16 (right ptr)
+  40128f:	e8 cf ff ff ff       	callq  401263 <fun7> // go to right ptr
+
   401294:	8d 44 00 01          	lea    0x1(%rax,%rax,1),%eax
   401298:	eb df                	jmp    401279 <fun7+0x16>
+
+  // failed eax = -1
   40129a:	b8 ff ff ff ff       	mov    $0xffffffff,%eax
   40129f:	c3                   	retq   
+  // a binary tree
 
 00000000004012a0 <s3cret_phase>:
   4012a0:	53                   	push   %rbx
   4012a1:	e8 ac 06 00 00       	callq  401952 <read_line>
-  4012a6:	48 89 c7             	mov    %rax,%rdi
-  4012a9:	ba 0a 00 00 00       	mov    $0xa,%edx
+  4012a6:	48 89 c7             	mov    %rax,%rdi // rdi = input
+  4012a9:	ba 0a 00 00 00       	mov    $0xa,%edx // edx = 10
   4012ae:	be 00 00 00 00       	mov    $0x0,%esi
-  4012b3:	e8 c8 f9 ff ff       	callq  400c80 <strtol@plt>
-  4012b8:	48 89 c3             	mov    %rax,%rbx
-  4012bb:	8d 40 ff             	lea    -0x1(%rax),%eax
-  4012be:	3d e8 03 00 00       	cmp    $0x3e8,%eax
-  4012c3:	77 2c                	ja     4012f1 <s3cret_phase+0x51>
-  4012c5:	89 de                	mov    %ebx,%esi
-  4012c7:	bf 10 41 60 00       	mov    $0x604110,%edi
+  4012b3:	e8 c8 f9 ff ff     * 	callq  400c80 <strtol@plt>
+  4012b8:	48 89 c3             	mov    %rax,%rbx // rbx = inp as long
+  4012bb:	8d 40 ff             	lea    -0x1(%rax),%eax // rax = inp -1
+  4012be:	3d e8 03 00 00       	cmp    $0x3e8,%eax // rax== inp -1 == 3e8?
+  4012c3:	77 2c                	ja     4012f1 <s3cret_phase+0x51> // inp < 3e9 = 1001
+  4012c5:	89 de                	mov    %ebx,%esi // esi = inp
+  4012c7:	bf 10 41 60 00       	mov    $0x604110,%edi // edi = 0x604110
   4012cc:	e8 92 ff ff ff       	callq  401263 <fun7>
-  4012d1:	83 f8 03             	cmp    $0x3,%eax
+  4012d1:	83 f8 03             	cmp    $0x3,%eax // after fun7, it must ret 3
   4012d4:	75 22                	jne    4012f8 <s3cret_phase+0x58>
   4012d6:	bf a0 27 40 00       	mov    $0x4027a0,%edi
   4012db:	e8 d0 f8 ff ff       	callq  400bb0 <puts@plt>
