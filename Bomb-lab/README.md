@@ -1,0 +1,26 @@
+- gdb:
+	- [this gist has a detailed instruction for gdb](https://gist.github.com/rkubik/b96c23bd8ed58333de37f2b8cd052c30)
+	- break \*0x0ff (instruction address)
+	- x/48bx \$rsp -> what is in this stack at this register address
+	- x/48bx 0xffff -> what is in this stack address
+	- break
+	- run
+	- bt: program stack
+	- c continue !! dangerous
+	- next: next line - step over function
+	- step: next line - step in function
+	- list: type text where it stopped ???
+	- quit
+	- disas: show the function instruction
+	- p/x \$rdi: print out rdi in hex format
+	- p/s \$rdi: print out value inside rdi in string format
+	- x/s \$rdi: value at address of rdi value in string format
+- objdump -t
+	- This will print out the bomb’s symbol table. The symbol table includes the names of all functions and global variables in the bomb, the names of all the functions the bomb calls, and their addresses. You may learn something by looking at the function names!
+- objdump -d
+	- Use this to disassemble all of the code in the bomb. You can also just look at individual functions. Reading the assembler code can tell you how the bomb works.
+	- ![[Pasted image 20231025214111.png]]
+- strings
+	- display printable string
+- step over any call to a function with a name prefixed with \_\_ (double underscore) or suffixed with “@plt"
+- apropos, man, info
