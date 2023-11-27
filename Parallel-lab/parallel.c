@@ -1,6 +1,6 @@
 /* 
- *  Name: [YOUR NAME HERE]
- *  UID: [YOUR UID HERE]
+ *  Name: Henry Nguyen
+ *  UID: 006286478
  */
 
 #include <stdlib.h>
@@ -9,31 +9,33 @@
 #include "utils.h"
 #include "parallel.h"
 
-
+//TODO: remove below
+#include <stdio.h>
 
 /*
  *  PHASE 1: compute the mean pixel value
  *  This code is buggy! Find the bug and speed it up.
  */
-void mean_pixel_parallel(const uint8_t img[][NUM_CHANNELS], int num_rows, int num_cols, double mean[NUM_CHANNELS]) {
-    int row, col, ch;
-    long count = 0;
 
-    #pragma omp parallel for
-    for (ch = 0; ch < NUM_CHANNELS; ch++) {
-        for (col = 0; col < num_cols; col++) {
-            for (row = 0; row < num_rows; row++){
-                mean[ch] += img[row*num_cols + col][ch];
-                count++;
+void mean_pixel_parallel(const uint8_t img[][NUM_CHANNELS], int num_rows, int num_cols, double mean[NUM_CHANNELS]) {
+    int ch,col, row, tmp;
+    long count = 0;
+    
+    double c0 = 0, c1= 0, c2= 0;
+    #pragma omp parallel for private(col, tmp) reduction(+:c0,c1,c2) schedule(dynamic)
+        for (row = 0; row < num_rows; row++){
+            tmp = row*num_cols;
+            for (col = 0; col < num_cols; col++) {
+                c0 += img[tmp + col][0];
+                c1 += img[tmp + col][1];
+                c2 += img[tmp + col][2];
             }
         }
-    }
 
-    count /= NUM_CHANNELS;
-
-    for (ch = 0; ch < NUM_CHANNELS; ch++) {
-        mean[ch] /= count;
-    }
+    count = num_cols* num_rows;
+    mean[0] = c0/count;
+    mean[1] = c1/count;
+    mean[2] = c2/count;
 }
 
 
