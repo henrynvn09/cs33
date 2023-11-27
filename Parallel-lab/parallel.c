@@ -22,12 +22,16 @@ void mean_pixel_parallel(const uint8_t img[][NUM_CHANNELS], int num_rows, int nu
     
     double c0 = 0, c1= 0, c2= 0;
     #pragma omp parallel for private(col, tmp) reduction(+:c0,c1,c2) schedule(dynamic)
-        for (row = 0; row < num_rows; row++){
+        for (row = 0; row < num_rows; ++row){
             tmp = row*num_cols;
-            for (col = 0; col < num_cols; col++) {
+            for (col = 0; col < num_cols; col+=2) {
                 c0 += img[tmp + col][0];
                 c1 += img[tmp + col][1];
                 c2 += img[tmp + col][2];
+
+                c0 += img[tmp + col + 1][0];
+                c1 += img[tmp + col + 1][1];
+                c2 += img[tmp + col + 1][2];
             }
         }
 
