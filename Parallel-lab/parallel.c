@@ -19,7 +19,6 @@
 
 void mean_pixel_parallel(const uint8_t img[][NUM_CHANNELS], int num_rows, int num_cols, double mean[NUM_CHANNELS]) {
     int ch,col, row, tmp;
-    long count = 0;
     
     double c0 = 0, c1= 0, c2= 0;
     #pragma omp parallel for private(col, tmp) reduction(+:c0,c1,c2) schedule(dynamic)
@@ -32,7 +31,7 @@ void mean_pixel_parallel(const uint8_t img[][NUM_CHANNELS], int num_rows, int nu
             }
         }
 
-    count = num_cols* num_rows;
+    double count = num_cols* num_rows;
     mean[0] = c0/count;
     mean[1] = c1/count;
     mean[2] = c2/count;
