@@ -9,8 +9,6 @@
 #include "utils.h"
 #include "parallel.h"
 
-//TODO: remove below
-#include <stdio.h>
 
 /*
  *  PHASE 1: compute the mean pixel value
@@ -18,7 +16,7 @@
  */
 
 void mean_pixel_parallel(const uint8_t img[][NUM_CHANNELS], int num_rows, int num_cols, double mean[NUM_CHANNELS]) {
-    int ch,col, row, tmp;
+    int col, row, tmp;
     
     double c0 = 0, c1= 0, c2= 0;
     #pragma omp parallel for private(col, tmp) reduction(+:c0,c1,c2) schedule(dynamic)
@@ -48,28 +46,36 @@ void mean_pixel_parallel(const uint8_t img[][NUM_CHANNELS], int num_rows, int nu
  *  This code is NOT buggy, just sequential. Speed it up.
  */
 void grayscale_parallel(const uint8_t img[][NUM_CHANNELS], int num_rows, int num_cols, uint32_t grayscale_img[][NUM_CHANNELS], uint8_t *max_gray, uint32_t *max_count) {
-    int row, col, ch, gray_ch;
-    *max_gray = 0;
-    *max_count = 0;
+    int row, col, tmp, tmp1;
+    uint32_t c;
+    uint8_t m_gray = 0;
+    uint32_t m_count = 0;
 
-    for (col = 0; col < num_cols; col++) {
-        for (row = 0; row < num_rows; row++){
-            for (gray_ch = 0; gray_ch < NUM_CHANNELS; gray_ch++) {
-                grayscale_img[row*num_cols + col][gray_ch] = 0;
-                for (ch = 0; ch < NUM_CHANNELS; ch++) {
-                    grayscale_img[row*num_cols + col][gray_ch] += img[row*num_cols + col][ch];
-                }
-                grayscale_img[row*num_cols + col][gray_ch] /= NUM_CHANNELS;
-                if (grayscale_img[row*num_cols + col][gray_ch] == *max_gray) {
-                    (*max_count)++;
-                }
-                else if (grayscale_img[row*num_cols + col][gray_ch] > *max_gray) {
-                    *max_gray = grayscale_img[row*num_cols + col][gray_ch];
-                    *max_count = 1;
-                }
-            }
+    #pragma omp parallel for private(col, tmp, tmp1, c) schedule(dynamic) reduction(max:m_gray)
+    for (row = 0; row < num_rows; row++){
+        tmp = row*num_cols;
+        for (col = 0; col < num_cols; col++) {
+            tmp1 = tmp + col;
+            c  = img[tmp1][0] + img[tmp1][1] + img[tmp1][2];
+            c /= 3;
+            
+            m_gray = m_gray > c ? m_gray : c;
+
+            grayscale_img[tmp1][0] = c;
+            grayscale_img[tmp1][1] = c;
+            grayscale_img[tmp1][2] = c;
         }
     }
+
+    #pragma omp parallel for reduction(+:m_count) schedule(dynamic)
+    for (tmp = 0; tmp < num_rows * num_cols; ++tmp) {
+        if (m_gray == grayscale_img[tmp][0]) 
+            ++m_count;
+    }
+
+
+    *max_gray = m_gray;
+    *max_count = m_count*3;
 }
 
 
