@@ -51,6 +51,9 @@ void grayscale_parallel(const uint8_t img[][NUM_CHANNELS], int num_rows, int num
     uint8_t m_gray = 0;
     uint32_t m_count = 0;
 
+    int max_threads = omp_get_max_threads();
+    
+
     #pragma omp parallel for private(col, tmp, tmp1, c) schedule(dynamic) reduction(max:m_gray)
     for (row = 0; row < num_rows; row++){
         tmp = row*num_cols;
