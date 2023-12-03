@@ -9,6 +9,7 @@
 #include "utils.h"
 #include "parallel.h"
 
+#include <stdio.h> //TODO: remove
 
 /*
  *  PHASE 1: compute the mean pixel value
@@ -45,24 +46,33 @@ void mean_pixel_parallel(const uint8_t img[][NUM_CHANNELS], int num_rows, int nu
  *  PHASE 2: convert image to grayscale and record the max grayscale value along with the number of times it appears
  *  This code is NOT buggy, just sequential. Speed it up.
  */
+
 void grayscale_parallel(const uint8_t img[][NUM_CHANNELS], int num_rows, int num_cols, uint32_t grayscale_img[][NUM_CHANNELS], uint8_t *max_gray, uint32_t *max_count) {
     int row, col, tmp, tmp1;
     uint32_t c;
-    uint8_t m_gray = 0;
-    uint32_t m_count = 0;
+    uint8_t m_gray[33];
+    uint32_t m_count[33];
 
     int max_threads = omp_get_max_threads();
-    
+    memset(m_gray, 0, sizeof(m_gray));
+    memset(m_count, 0, sizeof(m_count));
 
-    #pragma omp parallel for private(col, tmp, tmp1, c) schedule(dynamic) reduction(max:m_gray)
+    #pragma omp parallel for private(col, tmp, tmp1, c)
     for (row = 0; row < num_rows; row++){
         tmp = row*num_cols;
+        int thread_id = omp_get_thread_num();
         for (col = 0; col < num_cols; col++) {
             tmp1 = tmp + col;
             c  = img[tmp1][0] + img[tmp1][1] + img[tmp1][2];
             c /= 3;
             
-            m_gray = m_gray > c ? m_gray : c;
+            if (m_gray[thread_id] == c) {
+                m_count[thread_id]++;
+            }
+            else if (c > m_gray[thread_id]) {
+                m_gray[thread_id] = c;
+                m_count[thread_id] = 1;
+            }
 
             grayscale_img[tmp1][0] = c;
             grayscale_img[tmp1][1] = c;
@@ -70,15 +80,18 @@ void grayscale_parallel(const uint8_t img[][NUM_CHANNELS], int num_rows, int num
         }
     }
 
-    #pragma omp parallel for reduction(+:m_count) schedule(dynamic)
-    for (tmp = 0; tmp < num_rows * num_cols; ++tmp) {
-        if (m_gray == grayscale_img[tmp][0]) 
-            ++m_count;
+    *max_gray = 0;
+    *max_count = 0;
+    for (int i = 0; i < max_threads; i++) {
+        if (*max_gray == m_gray[i]){
+            *max_count += m_count[i];
+        }
+        else if (*max_gray < m_gray[i]){
+            *max_gray = m_gray[i];
+            *max_count = m_count[i];
+        }
     }
-
-
-    *max_gray = m_gray;
-    *max_count = m_count*3;
+    *max_count *= 3;
 }
 
 
