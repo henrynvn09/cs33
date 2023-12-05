@@ -52,7 +52,16 @@ void grayscale_parallel(const uint8_t img[][NUM_CHANNELS], int num_rows, int num
     uint32_t m_count = 0;
 
     int max_threads = omp_get_max_threads();
+<<<<<<< Updated upstream
     
+=======
+    #pragma omp parallel for
+    for (int i = 0; i < max_threads+1; i++)
+    {
+        m_gray[i] = 0;
+        m_count[i] = 0;
+    }
+>>>>>>> Stashed changes
 
     #pragma omp parallel for private(col, tmp, tmp1, c) schedule(dynamic) reduction(max:m_gray)
     for (row = 0; row < num_rows; row++){
@@ -88,12 +97,14 @@ void grayscale_parallel(const uint8_t img[][NUM_CHANNELS], int num_rows, int num
  *  This code is NOT buggy, just sequential. Speed it up.
  */
 void convolution_parallel(const uint8_t padded_img[][NUM_CHANNELS], int num_rows, int num_cols, const uint32_t kernel[], int kernel_size, uint32_t convolved_img[][NUM_CHANNELS]) {
-    int row, col, ch, kernel_row, kernel_col;
+    int row, col, kernel_row, kernel_col;
     int kernel_norm, i;
     int conv_rows, conv_cols;
+    uint32_t tmp0 = 0, tmp1 = 0, tmp2 = 0;
 
     // compute kernel normalization factor
     kernel_norm = 0;
+    #pragma omp parallel for reduction(+:kernel_norm)
     for(i = 0; i < kernel_size*kernel_size; i++) {
         kernel_norm += kernel[i];
     }
@@ -103,17 +114,43 @@ void convolution_parallel(const uint8_t padded_img[][NUM_CHANNELS], int num_rows
     conv_cols = num_cols - kernel_size + 1;
 
     // perform convolution
-    for (ch = 0; ch < NUM_CHANNELS; ch++) {
-        for (col = 0; col < conv_cols; col++) {
-            for (row = 0; row < conv_rows; row++) {
-                convolved_img[row*conv_cols + col][ch] = 0;
-                for (kernel_col = 0; kernel_col < kernel_size; kernel_col++) {
+    const int BLOCK = 1;
+    int a,b;
+    for (a = 0; a < conv_rows; a+= BLOCK) {
+        for (b = 0; b < conv_cols; b+= BLOCK) {
+            for (row = a; row < a+BLOCK; row++) {
+                for (col = b; col < b+BLOCK; col++) {
+                    tmp0 = tmp1 = tmp2 = 0;
+                    // convolved_img[row*conv_cols + col][0] = 0;
+                    // convolved_img[row*conv_cols + col][1] = 0;
+                    // convolved_img[row*conv_cols + col][2] = 0;
+
+                    // if (ch++ == 0) printf("%x\n%x\n%x\n%x\n%x\n%x\n", &convolved_img[row*conv_cols + col][0]
+                    //         , &convolved_img[row*conv_cols + col][1]
+                    //         , &convolved_img[row*conv_cols + col][2]
+                    //         , &convolved_img[row*conv_cols + col + 1][0]
+                    //         , &convolved_img[row*conv_cols + col + 1][1]
+                    //         , &convolved_img[row*conv_cols + col + 1][2]
+                    //         );
+
+                    int kernel_rowSize = 0;
+                    int tmp = row*num_cols + col;
                     for (kernel_row = 0; kernel_row < kernel_size; kernel_row++) {
-                        convolved_img[row*conv_cols + col][ch] += padded_img[(row+kernel_row)*num_cols + col+kernel_col][ch] * kernel[kernel_row*kernel_size + kernel_col];
+                        for (kernel_col = 0; kernel_col < kernel_size; kernel_col++) {
+                            int temp1 =kernel[kernel_rowSize + kernel_col];
+                            tmp0 += padded_img[tmp + kernel_col][0] * temp1;
+                            tmp1 += padded_img[tmp + kernel_col][1] * temp1;
+                            tmp2 += padded_img[tmp + kernel_col][2] * temp1;
+                        }
+                        kernel_rowSize += kernel_size;
+                        tmp += num_cols;
                     }
-                }
-                convolved_img[row*conv_cols + col][ch] /= kernel_norm;
-            }    
+                    int row_conv_cols = row*conv_cols + col;
+                    convolved_img[row_conv_cols][0] = tmp0 / kernel_norm;
+                    convolved_img[row_conv_cols][1] = tmp1 / kernel_norm;
+                    convolved_img[row_conv_cols][2] = tmp2 / kernel_norm;
+                }    
+            }
         }
     }
 }
