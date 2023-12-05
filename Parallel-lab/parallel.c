@@ -9,6 +9,7 @@
 #include "utils.h"
 #include "parallel.h"
 
+#include <stdio.h> //TODO: remove
 
 /*
  *  PHASE 1: compute the mean pixel value
@@ -104,7 +105,6 @@ void grayscale_parallel(const uint8_t img[][NUM_CHANNELS], int num_rows, int num
  *  This code is NOT buggy, just sequential. Speed it up.
  */
 void convolution_parallel(const uint8_t padded_img[][NUM_CHANNELS], int num_rows, int num_cols, const uint32_t kernel[], int kernel_size, uint32_t convolved_img[][NUM_CHANNELS]) {
-    int row, col, kernel_row, kernel_col;
     int kernel_norm, i;
     int conv_rows, conv_cols;
     uint32_t tmp0 = 0, tmp1 = 0, tmp2 = 0;
@@ -122,29 +122,21 @@ void convolution_parallel(const uint8_t padded_img[][NUM_CHANNELS], int num_rows
 
     // perform convolution
     const int BLOCK = 1;
-    int a,b;
+    int kernel_rowSize, tmp, row_conv_cols, temp1;
+    int a,b,row,col;
+    int kernel_row, kernel_col;
+
+    #pragma omp parallel for private(b,row,col,tmp0,tmp1,tmp2,kernel_rowSize,tmp,kernel_row,kernel_col,temp1,row_conv_cols) collapse(2)
     for (a = 0; a < conv_rows; a+= BLOCK) {
         for (b = 0; b < conv_cols; b+= BLOCK) {
             for (row = a; row < a+BLOCK; row++) {
                 for (col = b; col < b+BLOCK; col++) {
                     tmp0 = tmp1 = tmp2 = 0;
-                    // convolved_img[row*conv_cols + col][0] = 0;
-                    // convolved_img[row*conv_cols + col][1] = 0;
-                    // convolved_img[row*conv_cols + col][2] = 0;
-
-                    // if (ch++ == 0) printf("%x\n%x\n%x\n%x\n%x\n%x\n", &convolved_img[row*conv_cols + col][0]
-                    //         , &convolved_img[row*conv_cols + col][1]
-                    //         , &convolved_img[row*conv_cols + col][2]
-                    //         , &convolved_img[row*conv_cols + col + 1][0]
-                    //         , &convolved_img[row*conv_cols + col + 1][1]
-                    //         , &convolved_img[row*conv_cols + col + 1][2]
-                    //         );
-
-                    int kernel_rowSize = 0;
-                    int tmp = row*num_cols + col;
+                    kernel_rowSize = 0;
+                    tmp = col + row*num_cols;
                     for (kernel_row = 0; kernel_row < kernel_size; kernel_row++) {
                         for (kernel_col = 0; kernel_col < kernel_size; kernel_col++) {
-                            int temp1 =kernel[kernel_rowSize + kernel_col];
+                            temp1 =kernel[kernel_rowSize + kernel_col];
                             tmp0 += padded_img[tmp + kernel_col][0] * temp1;
                             tmp1 += padded_img[tmp + kernel_col][1] * temp1;
                             tmp2 += padded_img[tmp + kernel_col][2] * temp1;
@@ -152,7 +144,7 @@ void convolution_parallel(const uint8_t padded_img[][NUM_CHANNELS], int num_rows
                         kernel_rowSize += kernel_size;
                         tmp += num_cols;
                     }
-                    int row_conv_cols = row*conv_cols + col;
+                    row_conv_cols = row*conv_cols + col;
                     convolved_img[row_conv_cols][0] = tmp0 / kernel_norm;
                     convolved_img[row_conv_cols][1] = tmp1 / kernel_norm;
                     convolved_img[row_conv_cols][2] = tmp2 / kernel_norm;
