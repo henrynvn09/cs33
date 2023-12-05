@@ -9,8 +9,6 @@
 #include "utils.h"
 #include "parallel.h"
 
-#include <stdio.h> //TODO: remove
-
 /*
  *  PHASE 1: compute the mean pixel value
  *  This code is buggy! Find the bug and speed it up.
