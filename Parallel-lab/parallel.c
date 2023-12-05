@@ -59,11 +59,16 @@ void grayscale_parallel(const uint8_t img[][NUM_CHANNELS], int num_rows, int num
         m_count[i] = 0;
     }
 
-    #pragma omp parallel for private(col, tmp, tmp1, c)
-    for (row = 0; row < num_rows; row++){
-        tmp = row*num_cols;
-        int thread_id = omp_get_thread_num();
-        for (col = 0; col < num_cols; col++) {
+    tmp = 0;
+    const int BLOCK = 8;
+    int a,b;
+    #pragma omp parallel for private(tmp1, c, b, row,col, tmp)
+    for (a = 0; a < num_rows; a+= BLOCK) {
+        for (b = 0; b < num_cols; b+= BLOCK) {
+            for (row = a; row < a+BLOCK; row++) {
+		tmp = row*num_cols;
+                for (col = b; col < b+BLOCK; col++) {
+            int thread_id = omp_get_thread_num();
             tmp1 = tmp + col;
             c  = img[tmp1][0] + img[tmp1][1] + img[tmp1][2];
             c /= 3;
@@ -81,6 +86,8 @@ void grayscale_parallel(const uint8_t img[][NUM_CHANNELS], int num_rows, int num
             grayscale_img[tmp1][2] = c;
         }
     }
+}
+}
 
     *max_gray = 0;
     *max_count = 0;
@@ -119,7 +126,7 @@ void convolution_parallel(const uint8_t padded_img[][NUM_CHANNELS], int num_rows
     conv_cols = num_cols - kernel_size + 1;
 
     // perform convolution
-    const int BLOCK = 1;
+    const int BLOCK = 8;
     int kernel_rowSize, tmp, row_conv_cols, temp1;
     int a,b,row,col;
     int kernel_row, kernel_col;
