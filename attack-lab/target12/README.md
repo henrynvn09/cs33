@@ -33,6 +33,7 @@ handout.
 # Solution
 ### Phase 1:
 - filling 0x18 bytes to override the return address of stack, add a few padding
+- [this write-up is too good](https://github.com/magna25/Attack-Lab/blob/master/Phase%201.md)
 
 ### Phase 2:
 
@@ -60,6 +61,8 @@ put phase address to stack
 
 ret
 c3
+
+- [this write-up is also gold](https://github.com/magna25/Attack-Lab/blob/master/Phase%202.md)
 
 #### optimization
 this phase can be shorter by override ret for stack, don't need sub rsp those stuff, google for better Solution
